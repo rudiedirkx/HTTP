@@ -40,6 +40,7 @@ class HTTP {
 		if ( $this->redirects ) {
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 			curl_setopt($ch, CURLOPT_MAXREDIRS, $this->redirects);
+			curl_setopt($ch, CURLOPT_COOKIEFILE, '');
 		}
 
 		if ( $this->cookies ) {
@@ -111,6 +112,9 @@ class HTTPResponse {
 	public function __construct( $raw, $info = null ) {
 		$this->raw = $raw;
 		$this->info = $info;
+
+		$foo = $this->code;
+		$foo = $this->status;
 
 		// $x = explode("\r\n\r\n", $raw);
 		// if ( $this->info['redirect_count'] > 0 ) {
