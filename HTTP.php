@@ -129,12 +129,15 @@ class HTTPResponse {
 		// $this->parseCookies();
 	}
 
-	public function __get( $name ) {
+	public function &__get( $name ) {
+		$this->$name = null;
+
 		$function = 'get' . str_replace('_', '', $name);
 		if (method_exists($this, $function)) {
-			return $this->$name = call_user_func(array($this, $function));
+			$this->$name = call_user_func(array($this, $function));
 		}
-		return $this->$name = null;
+
+		return $this->$name;
 	}
 
 

@@ -8,7 +8,7 @@ header('Content-type: text/plain');
 $request = HTTP::create('https://api.github.com/gists/public');
 $response = $request->request();
 
-var_dump($response->response);
+print_r($response->response);
 
 // print_r($response->cookies);
 // print_r($response->cookies_by_name);
