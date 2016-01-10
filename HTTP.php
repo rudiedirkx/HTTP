@@ -88,6 +88,9 @@ class HTTP {
 
 class HTTPResponse {
 
+	public $code = 0;
+	public $status = '';
+
 	public $raw = '';
 	public $info = null;
 
@@ -113,8 +116,8 @@ class HTTPResponse {
 		$this->raw = $raw;
 		$this->info = $info;
 
-		$foo = $this->code;
-		$foo = $this->status;
+		$this->code = $this->getCode();
+		$this->status = $this->getStatus();
 
 		// $x = explode("\r\n\r\n", $raw);
 		// if ( $this->info['redirect_count'] > 0 ) {
@@ -234,7 +237,7 @@ class HTTPResponse {
 	}
 
 	public function _parseJson() {
-		return @json_decode(trim($this->body));
+		return @json_decode(trim($this->body), true);
 	}
 
 
