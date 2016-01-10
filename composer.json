@@ -1,0 +1,17 @@
+{
+    "name": "rdx/http",
+    "description": "A simple HTTP wrapper around CURL, with request and response classes.",
+    "authors": [
+        {
+            "name": "Rudie Dirkx",
+            "email": "github@hotblocks.nl"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "rdx\\http\\": ""
+        }
+    },
+    "require": {},
+    "license": "MIT"
+}
