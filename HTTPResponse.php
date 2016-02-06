@@ -111,7 +111,7 @@ class HTTPResponse {
 		$cookies = array();
 		if ( isset($this->headers['set-cookie']) ) {
 			foreach ( $this->headers['set-cookie'] as $cookie ) {
-				if ( preg_match('/([^=]+)=([^;]+)/', trim($cookie), $match) ) {
+				if ( preg_match('/([^=]+)=([^;]*)/', trim($cookie), $match) ) {
 					list(, $name, $value) = $match;
 					$cookies[] = array($name, urldecode($value));
 				}
