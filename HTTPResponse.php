@@ -111,9 +111,19 @@ class HTTPResponse {
 		$cookies = array();
 		if ( isset($this->headers['set-cookie']) ) {
 			foreach ( $this->headers['set-cookie'] as $cookie ) {
-				if ( preg_match('/([^=]+)=([^;]*)/', trim($cookie), $match) ) {
-					list(, $name, $value) = $match;
-					$cookies[] = array($name, urldecode($value));
+				if ( preg_match('/([^=]+)=([^;]*)[;\s]*(.+)/', trim($cookie), $match) ) {
+					$properties = array();
+					if ( $propsplit = preg_split('#\s*;\s*#', $match[3]) ) {
+						$properties = array_reduce($propsplit, function($list, $prop) {
+							list($name, $value) = explode('=', $prop . '=');
+							return $list += array($name => $value);
+						}, array());
+					}
+
+					if ( !isset($properties['expires']) || strtotime($properties['expires']) > time() + 5 ) {
+						list(, $name, $value) = $match;
+						$cookies[] = array($name, urldecode($value));
+					}
 				}
 			}
 		}
