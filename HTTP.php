@@ -13,6 +13,7 @@ class HTTP {
 	public $method = 'GET';
 	public $data = array();
 	public $headers = array();
+	public $auth;
 	public $cookies = null;
 	public $agent = '';
 	public $redirects = 0;
@@ -55,6 +56,12 @@ class HTTP {
 				}, $cookies));
 			}
 			curl_setopt($ch, CURLOPT_COOKIE, $cookies);
+		}
+
+		if ( $this->auth ) {
+			list($user, $pass) = $this->auth;
+			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+			curl_setopt($ch, CURLOPT_USERPWD, "$user:$pass");
 		}
 
 		if ( $this->data ) {
