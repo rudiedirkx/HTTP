@@ -2,8 +2,6 @@
 
 namespace rdx\http;
 
-use rdx\http\HTTPResponse;
-
 class HTTP {
 
 	static public $_agent = 'Super ultra fast super HTTP browser';
@@ -72,10 +70,14 @@ class HTTP {
 
 		$raw = curl_exec($ch);
 		$this->info = curl_getinfo($ch);
-		$response = new HTTPResponse($raw, $this->info);
+		$response = $this->createResponse($raw, $this->info);
 		curl_close($ch);
 
 		return $response;
+	}
+
+	public function createResponse($raw, $info) {
+		return new HTTPResponse($raw, $info);
 	}
 
 	static public function create($url, $options = array()) {
@@ -86,7 +88,7 @@ class HTTP {
 
 		isset($url) && $options['url'] = $url;
 
-		$http = new self;
+		$http = new static;
 
 		foreach ( $options AS $name => $value ) {
 			$http->$name = $value;
