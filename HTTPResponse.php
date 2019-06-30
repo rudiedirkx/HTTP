@@ -18,6 +18,9 @@ class HTTPResponse {
 		'text/json' => '_parseJson',
 	);
 
+	public $head;
+	public $body;
+
 	// public $head = '';
 	// public $code = 0;
 	// public $status = '';
@@ -34,18 +37,6 @@ class HTTPResponse {
 
 		$this->code = $this->getCode();
 		$this->status = $this->getStatus();
-
-		// $x = explode("\r\n\r\n", $raw);
-		// if ( $this->info['redirect_count'] > 0 ) {
-		// 	array_splice($x, 0, $this->info['redirect_count']);
-		// }
-		// $this->head = array_shift($x);
-		// $this->body = implode("\r\n\r\n", $x);
-		// $this->plain = trim(str_replace('&nbsp;', ' ', strip_tags($this->body)));
-
-		// $this->parseHeaders();
-		// $this->parseBody();
-		// $this->parseCookies();
 	}
 
 	public function &__get( $name ) {
@@ -61,23 +52,38 @@ class HTTPResponse {
 
 
 
-	protected function getComponents() {
-		$x = explode("\r\n\r\n", $this->raw);
-		if ( isset($this->info['redirect_count']) && $this->info['redirect_count'] > 0 ) {
-			array_splice($x, 0, $this->info['redirect_count']);
+	protected function makeComponents() {
+		if ($this->head !== null) return;
+
+		$lines = explode("\n", $this->raw);
+		$lastHeadStart = 0;
+		$firstBreak = 0;
+		foreach ($lines as $n => &$line) {
+			$line = trim($line);
+
+			if (strpos($line, 'HTTP/') === 0) {
+				$lastHeadStart = $n;
+				$firstBreak = 0;
+			}
+
+			if ($firstBreak == 0 && $line == '') {
+				$firstBreak = $n;
+			}
+
+			unset($line);
 		}
 
-		$this->head = array_shift($x);
-		$this->body = implode("\r\n\r\n", $x);
+		$this->head = trim(implode("\n", array_slice($lines, $lastHeadStart, $firstBreak - $lastHeadStart)));
+		$this->body = trim(implode("\n", array_slice($lines, $firstBreak)));
 	}
 
 	public function getHead() {
-		$this->getComponents();
+		$this->makeComponents();
 		return $this->head;
 	}
 
 	public function getBody() {
-		$this->getComponents();
+		$this->makeComponents();
 		return $this->body;
 	}
 
@@ -143,7 +149,7 @@ class HTTPResponse {
 
 
 	public function getResponse() {
-		$response = (string)$this->body;
+		$response = (string) $this->getBody();
 
 		if ( isset($this->headers['content-type'][0]) ) {
 			$x = explode(';', $this->headers['content-type'][0]);
@@ -163,7 +169,7 @@ class HTTPResponse {
 	}
 
 	public function _parseJson() {
-		return @json_decode(trim($this->body), true);
+		return @json_decode(trim($this->getBody()), true);
 	}
 
 
@@ -173,7 +179,7 @@ class HTTPResponse {
 	}
 
 	public function getPlain() {
-		$body = $this->body;
+		$body = $this->getBody();
 
 		// Only what's inside <body>
 		if ( preg_match('#<body[^>]*>([\s\S]+)</body>#', $body, $match) ) {
